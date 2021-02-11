@@ -19,26 +19,9 @@ class Test
   end
 
   def concurrent_requests_catching_errors
-    errors = []
-    results = []
-  
     Sync do |task|
-      barrier = Async::Barrier.new(:parent => task)
-  
-      yield barrier
-  
-      barrier.tasks.each do |child|
-        results << child.result
-      rescue ::StandardError => e
-        errors << e
-      end
+      yield task
     end
-  
-    if errors.any?      
-      raise StandardError, "CDN: #{name} Repo update failed - #{errors.size} error(s):\n#{errors.join("\n")}"
-    end
-  
-    results
   end
 
   def download(url)
